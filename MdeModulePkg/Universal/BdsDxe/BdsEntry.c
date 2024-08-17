@@ -495,6 +495,7 @@ ProcessLoadOptions (
       if ((LoadOptions[Index].Status == EFI_SUCCESS) &&
           (LoadOptionType == LoadOptionTypePlatformRecovery))
       {
+        // boot to frontpage?
         break;
       }
 
@@ -1125,11 +1126,8 @@ BdsEntry (
 
   if (!BootSuccess) {
     if (PcdGetBool (PcdPlatformRecoverySupport)) {
-      LoadOptions = EfiBootManagerGetLoadOptions (&LoadOptionCount, LoadOptionTypePlatformRecovery);
-      if ((LoadOptionCount != 0) && (LoadOptions != NULL)) {
-        ProcessLoadOptions (LoadOptions, LoadOptionCount);
-        EfiBootManagerFreeLoadOptions (LoadOptions, LoadOptionCount);
-      }
+      PlatformDefaultBootOption.Attributes |= LOAD_OPTION_CATEGORY_BOOT;
+      BootSuccess = BootBootOptions (&PlatformDefaultBootOption, 1, (BootManagerMenuStatus != EFI_NOT_FOUND) ? &BootManagerMenu : NULL);
     } else if (PlatformDefaultBootOptionValid) {
       // MU_CHANGE TCBZ2523 - Bds should NEVER boot anything the platform has not specified.
       //
